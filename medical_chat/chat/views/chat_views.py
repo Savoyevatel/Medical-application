@@ -20,7 +20,7 @@ from langchain_groq import ChatGroq
 
 from django.conf import settings
 import os
-
+from dotenv import load_dotenv
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
