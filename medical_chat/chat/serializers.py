@@ -41,3 +41,15 @@ class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
         fields = ['user', 'date_of_birth', 'gender', 'contact_number', 'address', 'medical_history']
+    
+
+class DoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = ['id', 'user', 'specialty', 'contact_number', 'address']
+        depth = 1  # This will include the user fields like username
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = '__all__'

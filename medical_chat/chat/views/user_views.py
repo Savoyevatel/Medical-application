@@ -7,13 +7,13 @@ from django.contrib.auth import authenticate
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from chat.serializers import UserSerializer, UserSerializerWithToken, PatientSerializer
+from chat.serializers import UserSerializer, UserSerializerWithToken, PatientSerializer, DoctorSerializer, AppointmentSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.permissions import AllowAny
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from chat.models import Doctor, Patient, Appointment
 
 
 
@@ -50,20 +50,17 @@ def registerUser(request):
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["POST"])
-@permission_classes([AllowAny])
+@api_view(['POST'])
 def login(request):
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(username=username, password=password)
+    
     if user is not None:
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'token': str(refresh.access_token),
-            'username': user.username
-        })
+        serializer = UserSerializerWithToken(user, many=False)
+        return Response(serializer.data)
     else:
-        return Response({"detail": "Invalid credentials"}, status=400)
+        return Response({'error': 'Invalid credentials'}, status=400)
 
 
 @api_view(['GET'])
@@ -102,3 +99,41 @@ def create_patient(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+
+@api_view(['GET'])
+def doctor_list(request):
+    doctors = Doctor.objects.all()
+    serializer = DoctorSerializer(doctors, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_appointment(request):
+    user = request.user
+    patient = None
+
+    try:
+        patient = Patient.objects.get(user=user)
+    except Patient.DoesNotExist:
+        return Response({"error": "Patient does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+    doctor_id = request.data.get('doctor')
+    appointment_date = request.data.get('appointment_date')
+    reason = request.data.get('reason')
+    status_value = request.data.get('status')
+
+    try:
+        doctor = Doctor.objects.get(id=doctor_id)
+    except Doctor.DoesNotExist:
+        return Response({"error": "Doctor does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+    appointment = Appointment.objects.create(
+        patient=patient,
+        doctor=doctor,
+        appointment_date=appointment_date,
+        reason=reason,
+        status=status_value,
+    )
+
+    return Response({"success": "Appointment created successfully"}, status=status.HTTP_201_CREATED)

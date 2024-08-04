@@ -41,13 +41,13 @@ class PatientDisease(models.Model):
 
 class Appointment(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)#doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, null=True, blank=True)
     appointment_date = models.DateTimeField()
     reason = models.TextField()
-    status = models.CharField(max_length=20, choices=[('Scheduled', 'Scheduled'), ('Completed', 'Completed'), ('Cancelled', 'Cancelled')])
+    status = models.CharField(max_length=20, choices=[('Scheduled', 'Scheduled'), ('Completed', 'Completed'), ('Canceled', 'Canceled')])
 
     def __str__(self):
-        return f"{self.patient.user.username} with {self.doctor.user.username} on {self.appointment_date}"
+        return f"{self.patient.user.username} with {self.doctor.user.username if self.doctor else 'No doctor'} on {self.appointment_date}"
 
 
 class MedicalRecord(models.Model):
@@ -68,7 +68,7 @@ class TreatmentPlan(models.Model):
     description = models.TextField()
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=[('Active', 'Active'), ('Completed', 'Completed'), ('Cancelled', 'Cancelled')])
+    status = models.CharField(max_length=20, choices=[('Active', 'Active'), ('Completed', 'Completed'), ('Canceled', 'Canceled')])
 
     def __str__(self):
         return f"Plan for {self.patient.user.username} by {self.doctor.user.username}"

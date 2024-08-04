@@ -12,5 +12,7 @@ urlpatterns = [
     path('profile/', views.getUserProfile, name='users-profile'),
     path('login-user/', views.login, name='login-user'),
     path('', views.getUsers, name='users'),
+    path('doctors/', views.doctor_list, name="get-doctors"),
+    path('appointments/', views.create_appointment, name="create-appointment"),
 
 ]
