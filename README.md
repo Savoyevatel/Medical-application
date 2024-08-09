@@ -32,7 +32,7 @@ git clone (https://github.com/Savoyevatel/Medical-application)
 Navigate to the frontend directory
 
 ```
-cd backend/frontend
+cd backend/frontend/health_frontend
 ```
 
 Install the required packages
@@ -48,7 +48,7 @@ npm start
 Navigate to the backend directory
 
 ```
-cd backend
+cd medical_chat
 ```
 
 Create a virtual environment
@@ -65,6 +65,7 @@ pip install -r requirements.txt
 
 Apply migrations and start the Django development server
 ```
+python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 ```
